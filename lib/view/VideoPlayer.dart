@@ -1,6 +1,6 @@
 import 'package:etech_tech/Network/connectivity_controller.dart';
-import 'package:etech_tech/controller/read_json.dart';
-import 'package:etech_tech/controller/videoListApiService.dart';
+import 'package:etech_tech/controller/read_json_controller.dart';
+
 import 'package:etech_tech/model/video_list_model.dart';
 import 'package:etech_tech/view/singleVideoPlayer.dart';
 import 'package:flick_video_player/flick_video_player.dart';

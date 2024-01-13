@@ -25,8 +25,7 @@ class _DownloadingState extends State<Downloading> {
   bool downloadWithError = false;
   TaskStatus? downloadTaskStatus;
   DownloadTask? backgroundDownloadTask;
-  StreamController<TaskProgressUpdate> progressUpdateStream =
-      StreamController();
+  late StreamController<TaskProgressUpdate> progressUpdateStream;
 
   bool loadAndOpenInProgress = false;
   bool loadABunchInProgress = false;
@@ -47,6 +46,8 @@ class _DownloadingState extends State<Downloading> {
 
     // optional: configure the downloader with platform specific settings,
     // see CONFIG.md
+    progressUpdateStream = StreamController.broadcast();
+
     FileDownloader().configure(globalConfig: [
       (Config.requestTimeout, const Duration(seconds: 100)),
     ], androidConfig: [
@@ -167,13 +168,13 @@ class _DownloadingState extends State<Downloading> {
         await getPermission(PermissionType.notifications);
         await getPermission(PermissionType.androidSharedStorage);
         GetPermissions.checkallpermission_openstorage();
-        // final pdfFileName = "movie${DateTime.now()}.mp4";
-
+        var downloadFunctionInstance = DownloadFunctions();
+        String path = await DownloadFunctions().getFilePath(fileName);
         backgroundDownloadTask = DownloadTask(
             url: fileUrl,
             // 'https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP',
             filename: '$fileName',
-            directory: '/storage/emulated/0/Download',
+            directory: path,
             // directory: 'my/directory',
             baseDirectory: BaseDirectory.applicationDocuments,
             updates: Updates.statusAndProgress,
