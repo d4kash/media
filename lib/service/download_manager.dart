@@ -3,7 +3,10 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:background_downloader/background_downloader.dart';
+import 'package:document_file_save_plus/document_file_save_plus.dart';
 import 'package:etech_tech/constants/constants.dart';
+import 'package:etech_tech/service/download_functions.dart';
+import 'package:etech_tech/utils/permisisons.dart';
 import 'package:flutter/material.dart';
 
 class Downloading extends StatefulWidget {
@@ -51,6 +54,14 @@ class _DownloadingState extends State<Downloading> {
     ], iOSConfig: [
       (Config.localize, {'Cancel': 'StopIt'}),
     ]).then((result) => debugPrint('Configuration result = $result'));
+
+    @override
+    void dispose() {
+      downloadTaskStatus = null;
+      buttonState = ButtonState.download;
+      progressUpdateStream.close();
+      super.dispose();
+    }
 
     // Registering a callback and configure notifications
     FileDownloader()
@@ -114,22 +125,32 @@ class _DownloadingState extends State<Downloading> {
 
   @override
   Widget build(BuildContext context) {
-    
-    return Center(
-        child: ElevatedButton(
+    return Column(
+      children: [
+        Center(
+            child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-                                  backgroundColor:  Constant.buttonColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  
-                                  )
-                                ),
-      onPressed: () => processButtonPress(widget.fileName, widget.fileUrl),
-      child: Text(
-        buttonTexts[buttonState.index],
-        style:const TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 16),
-      ),
-    ));
+              backgroundColor: Constant.buttonColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              )),
+          onPressed: () => processButtonPress(widget.fileName, widget.fileUrl),
+          child: Text(
+            buttonTexts[buttonState.index],
+            style: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16),
+          ),
+        )),
+        //  SizedBox(
+        //   width: Constant.width/4,
+        //    child: DownloadProgressIndicator(progressUpdateStream.stream,
+        //            showPauseButton: true,
+        //            showCancelButton: true,
+        //            backgroundColor: Colors.grey,
+        //            maxExpandable: 3),
+        //  )
+      ],
+    );
     // bottomSheet: DownloadProgressIndicator(progressUpdateStream.stream,
     //     showPauseButton: true,
     //     showCancelButton: true,
@@ -145,9 +166,12 @@ class _DownloadingState extends State<Downloading> {
         // start download
         await getPermission(PermissionType.notifications);
         await getPermission(PermissionType.androidSharedStorage);
+        GetPermissions.checkallpermission_openstorage();
+        // final pdfFileName = "movie${DateTime.now()}.mp4";
+
         backgroundDownloadTask = DownloadTask(
-            url:fileUrl,
-                // 'https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP',
+            url: fileUrl,
+            // 'https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP',
             filename: '$fileName',
             directory: '/storage/emulated/0/Download',
             // directory: 'my/directory',
@@ -157,7 +181,9 @@ class _DownloadingState extends State<Downloading> {
             allowPause: true,
             metaData: '<example metaData>',
             displayName: 'Daksh');
+
         await FileDownloader().enqueue(backgroundDownloadTask!);
+        await DownloadFunctions().downloadRecording(fileUrl);
         break;
       case ButtonState.cancel:
         // cancel download
@@ -186,7 +212,6 @@ class _DownloadingState extends State<Downloading> {
     }
   }
 
- 
   /// Attempt to get permissions if not already granted
   Future<void> getPermission(PermissionType permissionType) async {
     var status = await FileDownloader().permissions.status(permissionType);

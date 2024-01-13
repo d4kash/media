@@ -30,12 +30,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _connectivityService.dispose();
-    flickManager.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _connectivityService.dispose();
+  //   flickManager.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
