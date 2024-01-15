@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:background_downloader/background_downloader.dart';
-import 'package:document_file_save_plus/document_file_save_plus.dart';
 import 'package:etech_tech/constants/constants.dart';
 import 'package:etech_tech/service/download_functions.dart';
 import 'package:etech_tech/utils/permisisons.dart';
@@ -33,19 +32,7 @@ class _DownloadingState extends State<Downloading> {
   @override
   void initState() {
     super.initState();
-    // By default the downloader uses a modified version of the Localstore package
-    // to persistently store data. You can provide an alternative persistent
-    // storage backing that implements the [PersistentStorage] interface. You
-    // must initialize the FileDownloader by passing that alternative storage
-    // object on the first call to FileDownloader.
-    // For example, add a dependency for background_downloader_sql to
-    // pubspec.yaml which adds [SqlitePersistentStorage].
-    // To try that SQLite version, uncomment the following line, which
-    // will initialize the downloader with the SQLite storage solution.
-    // FileDownloader(persistentStorage: SqlitePersistentStorage());
 
-    // optional: configure the downloader with platform specific settings,
-    // see CONFIG.md
     progressUpdateStream = StreamController.broadcast();
 
     FileDownloader().configure(globalConfig: [
@@ -61,6 +48,7 @@ class _DownloadingState extends State<Downloading> {
       downloadTaskStatus = null;
       buttonState = ButtonState.download;
       progressUpdateStream.close();
+      FileDownloader().destroy();
       super.dispose();
     }
 
@@ -97,6 +85,8 @@ class _DownloadingState extends State<Downloading> {
                 'Download {filename}', 'Download complete'),
             tapOpensFile: true); // dog can also open directly from tap
 
+    if(FileDownloader().updates==null){
+
     // Listen to updates and process
     FileDownloader().updates.listen((update) {
       switch (update) {
@@ -116,6 +106,7 @@ class _DownloadingState extends State<Downloading> {
           progressUpdateStream.add(update); // pass on to widget for indicator
       }
     });
+    }
   }
 
   /// Process the user tapping on a notification by printing a message
